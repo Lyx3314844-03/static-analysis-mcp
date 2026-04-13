@@ -1,0 +1,12 @@
+[project]
+name = "static-analysis-mcp"
+version = "1.0.0"
+description = "Static Analysis MCP Server"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp-server>=0.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

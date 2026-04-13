@@ -1,0 +1,344 @@
+rules:
+  # ==================== Django 框架规则 ====================
+  
+  - id: django-sql-injection-exclude
+    patterns:
+      - pattern: |
+          Model.objects.exclude(**{$KEY: $VALUE})
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: "(?i)(contains|icontains|startswith|istartswith|endswith|iendswith|regex|iregex)"
+    message: "Django exclude 使用用户输入可能导致 SQL 注入"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      framework: "django"
+      category: "security"
+      cwe: "CWE-89"
+    fix: |
+      # ✅ 修复后
+      from django.utils.http import urlquote
+      Model.objects.exclude(field=urlquote(user_input))
+
+  - id: django-xss-mark-safe
+    patterns:
+      - pattern: |
+          from django.utils.safestring import mark_safe
+          mark_safe($USER_INPUT)
+    message: "对用户输入使用 mark_safe 可能导致 XSS"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      framework: "django"
+      category: "security"
+      cwe: "CWE-79"
+    fix: |
+      # ✅ 修复后
+      from django.utils.html import escape
+      escape(user_input)
+
+  - id: django-insecure-password-hash
+    patterns:
+      - pattern: |
+          make_password($PASSWORD, hasher=$HASHER)
+      - metavariable-regex:
+          metavariable: $HASHER
+          regex: "(md5|sha1|crypt)"
+    message: "使用弱密码哈希算法"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      framework: "django"
+      category: "security"
+    fix: |
+      # ✅ 修复后
+      make_password(password, hasher='pbkdf2_sha256')
+
+  - id: django-missing-csrf
+    patterns:
+      - pattern: |
+          @csrf_exempt
+          def $VIEW(request):
+              ...
+    message: "视图使用 @csrf_exempt 禁用 CSRF 保护"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      framework: "django"
+      category: "security"
+    fix: |
+      # ✅ 修复后
+      # 移除 @csrf_exempt
+      # 或在表单中添加 {% csrf_token %}
+
+  # ==================== Flask 框架规则 ====================
+  
+  - id: flask-debug-enabled
+    patterns:
+      - pattern: |
+          app.run(debug=True)
+    message: "生产环境不应启用 debug 模式"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      framework: "flask"
+      category: "security"
+    fix: |
+      # ✅ 修复后
+      app.run(debug=os.environ.get('FLASK_ENV') == 'development')
+
+  - id: flask-sql-injection
+    patterns:
+      - pattern: |
+          db.session.execute(f"SELECT ...")
+    message: "Flask 中使用 f-string 构建 SQL 查询"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      framework: "flask"
+      category: "security"
+      cwe: "CWE-89"
+    fix: |
+      # ✅ 修复后
+      from sqlalchemy import text
+      db.session.execute(text("SELECT ..."), params)
+
+  - id: flask-session-fixation
+    patterns:
+      - pattern: |
+          @app.route('/login')
+          def login():
+              session['user'] = ...
+    message: "登录后应重新生成 session ID 防止 session 固定攻击"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      framework: "flask"
+      category: "security"
+    fix: |
+      # ✅ 修复后
+      from flask import session
+      @app.route('/login')
+      def login():
+          session.clear()  # 清除旧 session
+          session['user'] = ...
+          session.regenerate()  # 重新生成 session ID
+
+  # ==================== React 框架规则 ====================
+  
+  - id: react-dangerous-html-user-input
+    patterns:
+      - pattern: |
+          <div dangerouslySetInnerHTML={{__html: $PROP}} />
+      - metavariable-pattern:
+          metavariable: $PROP
+          pattern: |
+            /.*user.*|.*input.*|.*content.*/
+    message: "对用户输入使用 dangerouslySetInnerHTML"
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      framework: "react"
+      category: "security"
+      cwe: "CWE-79"
+    fix: |
+      // ✅ 修复后
+      import DOMPurify from 'dompurify';
+      <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(userInput)}} />
+
+  - id: react-eval-user-input
+    patterns:
+      - pattern: |
+          eval($USER_INPUT)
+    message: "eval 用户输入极其危险"
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      framework: "react"
+      category: "security"
+    fix: |
+      // ✅ 修复后
+      // 使用 Function 构造函数或专门的解析库
+      const result = JSON.parse(userInput);
+
+  - id: react-missing-prop-types
+    patterns:
+      - pattern: |
+          function $COMPONENT($PROPS) { ... }
+      - pattern-not: |
+          function $COMPONENT($PROPS: $TYPES) { ... }
+    message: "组件缺少 PropTypes 或 TypeScript 类型定义"
+    languages: [typescript, javascript]
+    severity: INFO
+    metadata:
+      framework: "react"
+      category: "best-practice"
+    fix: |
+      // ✅ 修复后
+      interface ComponentProps {
+        name: string;
+        age?: number;
+      }
+      function Component(props: ComponentProps) { ... }
+
+  # ==================== Vue 框架规则 ====================
+  
+  - id: vue-v-html-user-input
+    patterns:
+      - pattern: |
+          <div v-html="$USER_INPUT"></div>
+    message: "对用户输入使用 v-html 可能导致 XSS"
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      framework: "vue"
+      category: "security"
+      cwe: "CWE-79"
+    fix: |
+      <!-- ✅ 修复后 -->
+      <div>{{ userInput }}</div>
+      <!-- 或使用 DOMPurify -->
+      <div v-html="DOMPurify.sanitize(userInput)"></div>
+
+  - id: vue-missing-prop-validation
+    patterns:
+      - pattern: |
+          props: {
+            $PROP: $TYPE
+          }
+      - pattern-not: |
+          props: {
+            $PROP: {
+              type: $TYPE,
+              validator: $FUNC
+            }
+          }
+    message: "Props 缺少验证"
+    languages: [typescript, javascript]
+    severity: INFO
+    metadata:
+      framework: "vue"
+      category: "best-practice"
+    fix: |
+      // ✅ 修复后
+      props: {
+        userId: {
+          type: Number,
+          required: true,
+          validator: (value) => value > 0
+        }
+      }
+
+  # ==================== Spring 框架规则 ====================
+  
+  - id: spring-sql-injection
+    patterns:
+      - pattern: |
+          @Query("SELECT ... WHERE ... = #{$VAR}")
+    message: "Spring Data JPQL 中使用 SpEL 可能导致 SQL 注入"
+    languages: [java]
+    severity: ERROR
+    metadata:
+      framework: "spring"
+      category: "security"
+      cwe: "CWE-89"
+    fix: |
+      // ✅ 修复后
+      @Query("SELECT ... WHERE ... = :param")
+      List<Entity> findByParam(@Param("param") String param);
+
+  - id: spring-path-traversal
+    patterns:
+      - pattern: |
+          @GetMapping("/{path}")
+          public ResponseEntity<Resource> getFile(@PathVariable String path) {
+              return ResponseEntity.ok(new FileSystemResource(path));
+          }
+    message: "路径变量直接使用可能导致路径遍历"
+    languages: [java]
+    severity: ERROR
+    metadata:
+      framework: "spring"
+      category: "security"
+      cwe: "CWE-22"
+    fix: |
+      // ✅ 修复后
+      @GetMapping("/{path}")
+      public ResponseEntity<Resource> getFile(@PathVariable String path) {
+          Path safePath = Paths.get(BASE_DIR).resolve(path).normalize();
+          if (!safePath.startsWith(BASE_DIR)) {
+              throw new SecurityException("Invalid path");
+          }
+          return ResponseEntity.ok(new FileSystemResource(safePath));
+      }
+
+  - id: spring-csrf-disabled
+    patterns:
+      - pattern: |
+          http.csrf().disable()
+    message: "禁用 CSRF 保护"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      framework: "spring"
+      category: "security"
+    fix: |
+      // ✅ 修复后
+      // 移除 .disable()
+      http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+
+  # ==================== Express 框架规则 ====================
+  
+  - id: express-xss-send
+    patterns:
+      - pattern: |
+          res.send($USER_INPUT)
+    message: "直接发送用户输入可能导致 XSS"
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      framework: "express"
+      category: "security"
+      cwe: "CWE-79"
+    fix: |
+      // ✅ 修复后
+      const escape = require('escape-html');
+      res.send(escape(userInput));
+
+  - id: express-path-traversal
+    patterns:
+      - pattern: |
+          res.sendFile($USER_INPUT)
+    message: "res.sendFile 使用用户输入可能导致路径遍历"
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      framework: "express"
+      category: "security"
+      cwe: "CWE-22"
+    fix: |
+      // ✅ 修复后
+      const path = require('path');
+      const safePath = path.join(__dirname, 'uploads', path.basename(userInput));
+      res.sendFile(safePath);
+
+  - id: express-missing-rate-limit
+    patterns:
+      - pattern: |
+          app.post('/login', ...)
+      - pattern-not: |
+          app.post('/login', rateLimiter, ...)
+    message: "登录接口缺少速率限制"
+    languages: [typescript, javascript]
+    severity: WARNING
+    metadata:
+      framework: "express"
+      category: "security"
+    fix: |
+      // ✅ 修复后
+      const rateLimit = require('express-rate-limit');
+      const loginLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 5
+      });
+      app.post('/login', loginLimiter, ...);

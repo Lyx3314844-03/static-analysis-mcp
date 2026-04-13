@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "static-analysis": {
+      "command": "C:\\Users\\Administrator\\static-analysis-mcp.cmd",
+      "args": [],
+      "description": "Static Code Analysis MCP Server - multi-language project/code analysis with project-level diagnostics"
+    }
+  }
+}

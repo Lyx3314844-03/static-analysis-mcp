@@ -1,0 +1,103 @@
+{
+  "name": "static-analysis-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive MCP server for multi-language static code analysis, security scanning, and AI-powered code review with 50+ tools supporting 28+ programming languages",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "static-analysis-mcp": "./src/index.js"
+  },
+  "files": [
+    "src/",
+    "STATIC_ANALYSIS_TOOLS/",
+    "scripts/",
+    "README.md",
+    "LICENSE",
+    "mcp.json",
+    "mcp_server.py",
+    "pyproject.toml",
+    "requirements.txt"
+  ],
+  "scripts": {
+    "start": "node src/index.js",
+    "start:hybrid": "node src/index.js --transport hybrid --host 127.0.0.1 --port 3902",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/project-analyzer.test.js tests/toolchain-doctor.test.js tests/security-utils.test.js tests/server-tools.test.js",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "prepublishOnly": "npm test && npm run lint",
+    "postinstall": "echo '✓ static-analysis-mcp installed successfully! Run with: npx static-analysis-mcp'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/static-analysis-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/static-analysis-mcp/issues"
+  },
+  "homepage": "https://github.com/yourusername/static-analysis-mcp#readme",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "static-analysis",
+    "code-quality",
+    "security",
+    "linter",
+    "code-review",
+    "vulnerability-detection",
+    "complexity-analysis",
+    "ai-powered",
+    "multi-language",
+    "javascript",
+    "typescript",
+    "python",
+    "java",
+    "go",
+    "rust",
+    "cpp",
+    "csharp",
+    "developer-tools",
+    "code-scanning",
+    "dependency-check",
+    "supply-chain-security",
+    "github-integration",
+    "slack-integration",
+    "sarif-export"
+  ],
+  "author": "Your Name <your.email@example.com> (https://github.com/yourusername)",
+  "contributors": [
+    {
+      "name": "Static Analysis MCP Community",
+      "url": "https://github.com/yourusername/static-analysis-mcp/graphs/contributors"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.3.0",
+    "glob": "^10.3.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.0",
+    "prettier": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

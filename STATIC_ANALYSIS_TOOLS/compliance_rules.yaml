@@ -1,0 +1,429 @@
+rules:
+  # ==================== GDPR 合规性规则 ====================
+  
+  - id: gdpr-personal-data-in-logs
+    patterns:
+      - pattern: logging.$METHOD(f"...{$VAR}...")
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: "(?i)(email|phone|password|ssn|credit_card|address)"
+    message: "日志中记录个人数据违反 GDPR 第 5 条 - 数据最小化原则"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "GDPR"
+      category: "privacy"
+      article: "Article 5"
+      subcategory: "data_minimization"
+    fix: |
+      # ❌ 修复前
+      logging.info(f"User login: {email}")
+      
+      # ✅ 修复后
+      logging.info(f"User login: {hash_email(email)}")
+      # 或使用用户 ID
+      logging.info(f"User login: {user_id}")
+
+  - id: gdpr-hardcoded-personal-data
+    patterns:
+      - pattern: |
+          $VAR = "..."
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: "(?i)(email|phone|address|passport|ssn)"
+    message: "代码中硬编码个人数据违反 GDPR 第 25 条 - 设计保护数据"
+    languages: [python, javascript, typescript]
+    severity: ERROR
+    metadata:
+      compliance: "GDPR"
+      category: "privacy"
+      article: "Article 25"
+    fix: |
+      # ❌ 修复前
+      admin_email = "admin@example.com"
+      
+      # ✅ 修复后
+      admin_email = os.environ.get('ADMIN_EMAIL')
+
+  - id: gdpr-missing-consent-check
+    patterns:
+      - pattern: |
+          def process_personal_data($DATA):
+              ...
+      - pattern-not: |
+          def process_personal_data($DATA):
+              ...
+              if not $DATA.consent:
+                  ...
+              ...
+    message: "处理个人数据前未检查用户同意，违反 GDPR 第 6 条 - 合法性"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "GDPR"
+      category: "privacy"
+      article: "Article 6"
+    fix: |
+      # ✅ 修复后
+      def process_personal_data(data):
+          if not data.has_consent:
+              raise ConsentError("User consent required")
+          # 继续处理...
+
+  - id: gdpr-data-retention-violation
+    patterns:
+      - pattern: |
+          def store_user_data($DATA):
+              ...
+              # 无删除逻辑
+      - pattern-not: |
+          def store_user_data($DATA):
+              ...
+              schedule_deletion(...)
+              ...
+    message: "存储个人数据未设置保留期限，违反 GDPR 第 5 条 - 存储限制"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "GDPR"
+      category: "privacy"
+      article: "Article 5"
+    fix: |
+      # ✅ 修复后
+      def store_user_data(data):
+          db.save(data)
+          # 设置保留期限
+          schedule_deletion(data.id, days=365)
+
+  # ==================== HIPAA 合规性规则 ====================
+  
+  - id: hipaa-unencrypted-phi-storage
+    patterns:
+      - pattern: |
+          def save_patient_data($DATA):
+              db.save($DATA)
+      - pattern-not: |
+          def save_patient_data($DATA):
+              encrypted_data = encrypt($DATA)
+              db.save(encrypted_data)
+    message: "患者健康信息 (PHI) 未加密存储违反 HIPAA 安全规则"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "HIPAA"
+      category: "healthcare"
+      section: "Security Rule - 164.312(a)(2)(iv)"
+    fix: |
+      # ✅ 修复后
+      from cryptography.fernet import Fernet
+      
+      def save_patient_data(data):
+          encrypted = Fernet(key).encrypt(data.encode())
+          db.save(encrypted)
+
+  - id: hipaa-missing-access-logs
+    patterns:
+      - pattern: |
+          def access_patient_record($ID):
+              record = db.get($ID)
+              return record
+      - pattern-not: |
+          def access_patient_record($ID):
+              record = db.get($ID)
+              log_access($ID, current_user)
+              return record
+    message: "访问患者记录未记录审计日志违反 HIPAA 安全规则"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "HIPAA"
+      category: "healthcare"
+      section: "Security Rule - 164.312(b)"
+    fix: |
+      # ✅ 修复后
+      def access_patient_record(id):
+          record = db.get(id)
+          audit_log.log(
+              action="access_record",
+              user=current_user,
+              record_id=id,
+              timestamp=datetime.now()
+          )
+          return record
+
+  - id: hipaa-insecure-phi-transmission
+    patterns:
+      - pattern: requests.$METHOD("http://$URL", ...)
+      - metavariable-pattern:
+          metavariable: $URL
+          pattern: |
+            /.*patient.*|.*health.*|.*medical.*
+    message: "通过 HTTP 传输健康信息违反 HIPAA 安全规则"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "HIPAA"
+      category: "healthcare"
+      section: "Security Rule - 164.312(e)(1)"
+    fix: |
+      # ✅ 修复后
+      requests.post("https://api.example.com/patient", ...)
+
+  - id: hipaa-missing-ba-agreement-check
+    patterns:
+      - pattern: |
+          def share_with_third_party($DATA):
+              send_to_external($DATA)
+      - pattern-not: |
+          def share_with_third_party($DATA):
+              if has_baa_agreement(external_party):
+                  send_to_external($DATA)
+    message: "与第三方共享 PHI 前未验证 BAA 协议违反 HIPAA"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "HIPAA"
+      category: "healthcare"
+      section: "Security Rule - 164.502(e)"
+    fix: |
+      # ✅ 修复后
+      def share_with_third_party(data):
+          if not has_baa_agreement(external_party):
+              raise ComplianceError("BAA agreement required")
+          send_to_external(data)
+
+  # ==================== PCI-DSS 合规性规则 ====================
+  
+  - id: pci-plaintext-card-storage
+    patterns:
+      - pattern: |
+          def save_card($CARD_NUMBER):
+              db.save($CARD_NUMBER)
+      - pattern-not: |
+          def save_card($CARD_NUMBER):
+              masked = mask_card($CARD_NUMBER)
+              db.save(masked)
+    message: "明文存储银行卡号违反 PCI-DSS 要求 3.4"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "PCI-DSS"
+      category: "payment"
+      requirement: "Requirement 3.4"
+    fix: |
+      # ✅ 修复后
+      def save_card(card_number):
+          # 只存储后四位
+          masked = "****-****-****-" + card_number[-4:]
+          db.save(masked)
+          # 或使用 tokenization
+          token = payment_processor.tokenize(card_number)
+          db.save(token)
+
+  - id: pci-weak-crypto-for-card-data
+    patterns:
+      - pattern: hashlib.md5($CARD_DATA)
+      - pattern: hashlib.sha1($CARD_DATA)
+    message: "使用弱加密算法处理卡数据违反 PCI-DSS 要求 3.5"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "PCI-DSS"
+      category: "payment"
+      requirement: "Requirement 3.5"
+    fix: |
+      # ✅ 修复后
+      from cryptography.fernet import Fernet
+      encrypted = Fernet(key).encrypt(card_data)
+
+  - id: pci-logging-card-data
+    patterns:
+      - pattern: logging.$METHOD(f"...{$CARD}...")
+      - metavariable-regex:
+          metavariable: $CARD
+          regex: "(?i)(card|pan|cvv|pin)"
+    message: "日志中记录卡数据违反 PCI-DSS 要求 3.2"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      compliance: "PCI-DSS"
+      category: "payment"
+      requirement: "Requirement 3.2"
+    fix: |
+      # ✅ 修复后
+      logging.info(f"Payment processed for card ending {card[-4:]}")
+
+  - id: pci-missing-access-control
+    patterns:
+      - pattern: |
+          def process_payment($DATA):
+              ...
+      - pattern-not: |
+          def process_payment($DATA):
+              if not current_user.has_permission('process_payment'):
+                  raise PermissionError()
+              ...
+    message: "支付处理缺少访问控制违反 PCI-DSS 要求 7.1"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "PCI-DSS"
+      category: "payment"
+      requirement: "Requirement 7.1"
+    fix: |
+      # ✅ 修复后
+      def process_payment(data):
+          if not current_user.has_permission('process_payment'):
+              raise PermissionError("Unauthorized")
+          # 继续处理...
+
+  # ==================== SOC2 合规性规则 ====================
+  
+  - id: soc2-missing-encryption-at-rest
+    patterns:
+      - pattern: |
+          def save_sensitive_data($DATA):
+              file.write($DATA)
+      - pattern-not: |
+          def save_sensitive_data($DATA):
+              encrypted = encrypt($DATA)
+              file.write(encrypted)
+    message: "敏感数据未加密存储违反 SOC2 控制 CC6.1"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "SOC2"
+      category: "security"
+      control: "CC6.1"
+    fix: |
+      # ✅ 修复后
+      from cryptography.fernet import Fernet
+      
+      def save_sensitive_data(data):
+          encrypted = Fernet(key).encrypt(data.encode())
+          file.write(encrypted)
+
+  - id: soc2-missing-mfa
+    patterns:
+      - pattern: |
+          def authenticate($USERNAME, $PASSWORD):
+              return check_password($USERNAME, $PASSWORD)
+      - pattern-not: |
+          def authenticate($USERNAME, $PASSWORD):
+              if check_password($USERNAME, $PASSWORD):
+                  verify_mfa($USERNAME)
+                  ...
+    message: "认证缺少多因素认证 (MFA) 违反 SOC2 控制 CC6.2"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "SOC2"
+      category: "security"
+      control: "CC6.2"
+    fix: |
+      # ✅ 修复后
+      def authenticate(username, password):
+          if check_password(username, password):
+              if not verify_mfa(username):
+                  raise MFARequiredError()
+              return create_session(username)
+
+  - id: soc2-missing-change-tracking
+    patterns:
+      - pattern: |
+          def update_config($CONFIG):
+              db.update($CONFIG)
+      - pattern-not: |
+          def update_config($CONFIG):
+              audit_log.log("config_change", $CONFIG, current_user)
+              db.update($CONFIG)
+    message: "配置变更未记录审计跟踪违反 SOC2 控制 CC7.2"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "SOC2"
+      category: "security"
+      control: "CC7.2"
+    fix: |
+      # ✅ 修复后
+      def update_config(config):
+          audit_log.log(
+              event="config_change",
+              changes=config,
+              user=current_user,
+              timestamp=datetime.now()
+          )
+          db.update(config)
+
+  # ==================== 数据隐私通用规则 ====================
+  
+  - id: privacy-missing-data-classification
+    patterns:
+      - pattern: |
+          class $CLASS:
+              ...
+      - metavariable-pattern:
+          metavariable: $CLASS
+          pattern: |
+            /.*User.*|.*Customer.*|.*Patient.*|.*Member.*/
+      - pattern-not: |
+          class $CLASS:
+              ...
+              # Classification: PERSONAL_DATA
+              ...
+    message: "包含个人数据的类缺少数据分类标签"
+    languages: [python]
+    severity: INFO
+    metadata:
+      compliance: "Privacy"
+      category: "data_governance"
+    fix: |
+      # ✅ 修复后
+      class UserData:
+          # Classification: PERSONAL_DATA
+          # Retention: 2 years
+          # Owner: Data Protection Officer
+          ...
+
+  - id: privacy-insecure-data-transfer
+    patterns:
+      - pattern: |
+          def transfer_data($DATA, $DESTINATION):
+              send($DATA, $DESTINATION, protocol="http")
+    message: "使用不安全协议传输数据违反数据隐私最佳实践"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "Privacy"
+      category: "data_transfer"
+    fix: |
+      # ✅ 修复后
+      def transfer_data(data, destination):
+          send(data, destination, protocol="https", encrypt=True)
+
+  - id: privacy-missing-data-deletion
+    patterns:
+      - pattern: |
+          def delete_user($USER_ID):
+              db.delete($USER_ID)
+      - pattern-not: |
+          def delete_user($USER_ID):
+              # Delete from all systems
+              db.delete($USER_ID)
+              cache.delete($USER_ID)
+              backup.mark_for_deletion($USER_ID)
+    message: "用户删除未清理所有系统违反 GDPR 第 17 条 - 删除权"
+    languages: [python]
+    severity: WARNING
+    metadata:
+      compliance: "GDPR"
+      category: "privacy"
+      article: "Article 17"
+    fix: |
+      # ✅ 修复后
+      def delete_user(user_id):
+          db.delete(user_id)
+          cache.delete(user_id)
+          backup.mark_for_deletion(user_id)
+          analytics.opt_out(user_id)
+          audit_log.log("user_deleted", user_id)
