@@ -406,10 +406,10 @@ After successful installation:
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/static-analysis-mcp/issues)
-- 💬 **Questions**: [GitHub Discussions](https://github.com/yourusername/static-analysis-mcp/discussions)
-- 📧 **Email**: your.email@example.com
-- 📖 **Documentation**: [README.md](https://github.com/yourusername/static-analysis-mcp#readme)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/lan/static-analysis-mcp/issues)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/lan/static-analysis-mcp/discussions)
+- 📧 **Email**: 3314844@qq.com
+- 📖 **Documentation**: [README.md](https://github.com/lan/static-analysis-mcp#readme)
 
 ---
 

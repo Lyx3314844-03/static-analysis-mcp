@@ -151,9 +151,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/static-analysis-mcp/issues)
-- 💬 **Questions**: [GitHub Discussions](https://github.com/yourusername/static-analysis-mcp/discussions)
-- 📧 **Email**: your.email@example.com
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/lan/static-analysis-mcp/issues)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/lan/static-analysis-mcp/discussions)
+- 📧 **Email**: 3314844@qq.com
 
 ---
 

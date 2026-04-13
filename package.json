@@ -30,12 +30,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/static-analysis-mcp.git"
+    "url": "git+https://github.com/lan/static-analysis-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/static-analysis-mcp/issues"
+    "url": "https://github.com/lan/static-analysis-mcp/issues"
   },
-  "homepage": "https://github.com/yourusername/static-analysis-mcp#readme",
+  "homepage": "https://github.com/lan/static-analysis-mcp#readme",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -64,11 +64,11 @@
     "slack-integration",
     "sarif-export"
   ],
-  "author": "Your Name <your.email@example.com> (https://github.com/yourusername)",
+  "author": "Lan <3314844@qq.com> (https://github.com/lan)",
   "contributors": [
     {
       "name": "Static Analysis MCP Community",
-      "url": "https://github.com/yourusername/static-analysis-mcp/graphs/contributors"
+      "url": "https://github.com/lan/static-analysis-mcp/graphs/contributors"
     }
   ],
   "license": "MIT",

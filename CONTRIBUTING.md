@@ -131,7 +131,7 @@ npm run test:coverage
 
 ## ❓ Questions?
 
-Feel free to open an issue with your question or reach out to the maintainers.
+Feel free to open an issue with your question or reach out to the maintainers at 3314844@qq.com.
 
 ## 🙏 Thank You
 

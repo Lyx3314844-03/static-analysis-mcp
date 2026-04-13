@@ -318,7 +318,7 @@ static-analysis-mcp --help
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/static-analysis-mcp.git
+git clone https://github.com/lan/static-analysis-mcp.git
 cd static-analysis-mcp
 
 # Install dependencies
@@ -530,7 +530,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/yourusername/static-analysis-mcp.git
+git clone https://github.com/lan/static-analysis-mcp.git
 cd static-analysis-mcp
 
 # Create a feature branch
@@ -597,10 +597,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/static-analysis-mcp/issues)
-- 💬 **Questions**: [GitHub Discussions](https://github.com/yourusername/static-analysis-mcp/discussions)
-- 📧 **Email**: your.email@example.com
-- 🐦 **Twitter**: [@yourusername](https://twitter.com/yourusername)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/lan/static-analysis-mcp/issues)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/lan/static-analysis-mcp/discussions)
+- 📧 **Email**: 3314844@qq.com
+- 🐦 **Twitter**: [@lan](https://twitter.com/lan)
 
 ---
 
