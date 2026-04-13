@@ -27,14 +27,14 @@
 
 <div align="center">
 
-[![npm version](https://img.shields.io/npm/v/static-analysis-mcp.svg?style=flat-square)](https://www.npmjs.com/package/static-analysis-mcp)
-[![npm downloads](https://img.shields.io/npm/dm/static-analysis-mcp.svg?style=flat-square)](https://www.npmjs.com/package/static-analysis-mcp)
-[![npm downloads total](https://img.shields.io/npm/dt/static-analysis-mcp.svg?style=flat-square)](https://www.npmjs.com/package/static-analysis-mcp)
-[![node version](https://img.shields.io/node/v/static-analysis-mcp.svg?style=flat-square)](https://nodejs.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg?style=flat-square)](https://www.typescriptlang.org)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=flat-square)](https://www.python.org)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![npm version](https://img.shields.io/npm/v/static-analysis-mcp.svg?style=flat)](https://www.npmjs.com/package/static-analysis-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/static-analysis-mcp.svg?style=flat)](https://www.npmjs.com/package/static-analysis-mcp)
+[![npm downloads total](https://img.shields.io/npm/dt/static-analysis-mcp.svg?style=flat)](https://www.npmjs.com/package/static-analysis-mcp)
+[![node version](https://img.shields.io/node/v/static-analysis-mcp.svg?style=flat)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg?style=flat)](https://www.typescriptlang.org)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=flat)](https://www.python.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
 **A comprehensive Model Context Protocol (MCP) server for multi-language static code analysis, security scanning, and AI-powered code review.**
 
